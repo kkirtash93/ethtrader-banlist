@@ -30,7 +30,7 @@ async function main() {
       await updateFile();
     }
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Main Error:', error);
   }
 }
 
