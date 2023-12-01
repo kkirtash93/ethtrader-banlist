@@ -1,12 +1,14 @@
 import snoowrap from "snoowrap";
 import dotenv from 'dotenv';
-import fs from "fs/promises"; // Use fs/promises for promise-based fs operations
+import fs from "fs";
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const fileName = path.join(__dirname, 'in/banList.json');
+const folderPath = path.join(__dirname, '/in');
+const fileName = 'banList.json';
+const fullPath = `${folderPath}/${fileName}`
 const communityName = 'kirtash93';
 
 dotenv.config();
@@ -24,8 +26,9 @@ const banList = await reddit.getSubreddit(communityName).getBannedUsers({ limit:
 
 async function main() {
   try {
-    if (!await fileExists(fileName)) {
-      await fs.writeFile(fileName, JSON.stringify(banList, null, 2));
+    if (!fs.existsSync(fullPath)) {
+      fs.mkdirSync(folderPath, { recursive: true });
+      fs.writeFileSync(fullPath, JSON.stringify(banList, null, 2));
     } else {
       await updateFile();
     }
@@ -34,18 +37,9 @@ async function main() {
   }
 }
 
-async function fileExists(filePath) {
-  try {
-    await fs.access(filePath);
-    return true;
-  } catch (err) {
-    return false;
-  }
-}
-
 async function updateFile() {
   try {
-    const data = await fs.readFile(fileName, 'utf8');
+    const data = await fs.readFile(fullPath, 'utf8');
     const recordedBanList = JSON.parse(data);
 
     banList.forEach(bannedUser => {
@@ -56,9 +50,9 @@ async function updateFile() {
       }
     });
 
-    await fs.writeFile(fileName, JSON.stringify(recordedBanList, null, 2));
+    await fs.writeFileSync(fullPath, JSON.stringify(recordedBanList, null, 2));
   } catch (error) {
-    console.error(`Error updating file ${fileName}:`, error);
+    console.error(`Error updating file ${fullPath}:`, error);
   }
 }
 
