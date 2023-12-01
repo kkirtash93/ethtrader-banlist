@@ -39,7 +39,7 @@ async function main() {
 
 async function updateFile() {
   try {
-    const data = await fs.readFile(fullPath, 'utf8');
+    const data = await fs.readFileSync(fullPath, { encoding: 'utf8' });
     const recordedBanList = JSON.parse(data);
 
     banList.forEach(bannedUser => {
